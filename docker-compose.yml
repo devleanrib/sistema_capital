@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: capital_postgres
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-capital_db}
+      POSTGRES_USER: ${DB_USERNAME:-capital_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-capital_secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-capital_user} -d ${DB_DATABASE:-capital_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: capital_backend
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-capital_db}
+      DB_USERNAME: ${DB_USERNAME:-capital_user}
+      DB_PASSWORD: ${DB_PASSWORD:-capital_secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: capital_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

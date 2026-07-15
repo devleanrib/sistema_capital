@@ -1,0 +1,36 @@
+# Dependencias
+/vendor/
+/node_modules/
+/.phpunit.cache
+Homestead.json
+Homestead.yaml
+auth.json
+npm-debug.log
+yarn-error.log
+
+# Arquivos de ambiente
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+
+# IDEs
+/.idea
+/.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Build
+/dist/
+/build/
+*.log
+enunciado.md
+PLANO_IMPLEMENTACAO.md
