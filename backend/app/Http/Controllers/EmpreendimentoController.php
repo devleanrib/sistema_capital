@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empreendimento;
+use App\Http\Resources\EmpreendimentoResource;
+use App\Http\Requests\StoreEmpreendimentoRequest;
+use App\Http\Requests\UpdateEmpreendimentoRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
@@ -24,7 +27,7 @@ class EmpreendimentoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $empreendimentos,
+            'data' => EmpreendimentoResource::collection($empreendimentos),
         ]);
     }
 
@@ -41,32 +44,22 @@ class EmpreendimentoController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $empreendimento,
+            'data' => new EmpreendimentoResource($empreendimento),
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreEmpreendimentoRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'cidade' => 'required|string|max:255',
-            'estado' => 'required|string|size:2',
-            'valor_total' => 'required|numeric|gt:0',
-            'quantidade_unidades' => 'required|integer|gt:0',
-            'valor_unidade' => 'required|numeric|gt:0',
-            'status' => 'required|string|in:em_lancamento,em_obras,entregue',
-        ]);
-
-        $empreendimento = Empreendimento::create($validated);
+        $empreendimento = Empreendimento::create($request->validated());
 
         return response()->json([
             'success' => true,
-            'data' => $empreendimento,
+            'data' => new EmpreendimentoResource($empreendimento),
             'message' => 'Empreendimento criado com sucesso',
         ], 201);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateEmpreendimentoRequest $request, $id): JsonResponse
     {
         $empreendimento = Empreendimento::find($id);
 
@@ -77,21 +70,11 @@ class EmpreendimentoController extends Controller
             ], 404);
         }
 
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'cidade' => 'required|string|max:255',
-            'estado' => 'required|string|size:2',
-            'valor_total' => 'required|numeric|gt:0',
-            'quantidade_unidades' => 'required|integer|gt:0',
-            'valor_unidade' => 'required|numeric|gt:0',
-            'status' => 'required|string|in:em_lancamento,em_obras,entregue',
-        ]);
-
-        $empreendimento->update($validated);
+        $empreendimento->update($request->validated());
 
         return response()->json([
             'success' => true,
-            'data' => $empreendimento,
+            'data' => new EmpreendimentoResource($empreendimento),
             'message' => 'Empreendimento atualizado com sucesso',
         ]);
     }
