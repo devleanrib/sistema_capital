@@ -16,7 +16,7 @@ class EmpreendimentoController extends Controller
         $query = Empreendimento::query();
 
         if ($request->filled('busca')) {
-            $query->where('nome', 'like', '%' . $request->busca . '%');
+            $query->where('nome', 'ilike', '%' . $request->busca . '%');
         }
 
         if ($request->filled('status')) {
